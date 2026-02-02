@@ -99,37 +99,176 @@ if ('IntersectionObserver' in window) {
 }
 
 // ===========================
-// CAROUSEL FUNCTIONALITY
+// CAROUSEL FUNCTIONALITY WITH SLIDER
 // ===========================
-class SimpleCarousel {
-    constructor(carouselClass) {
-        this.carousel = document.querySelector(carouselClass);
-        this.items = this.carousel?.querySelectorAll('.testimonial-item, .wisdom-item');
-        this.currentIndex = 0;
+class CarouselSlider {
+    constructor(carouselSelector) {
+        this.carousel = document.querySelector(carouselSelector);
+        this.isMobile = window.innerWidth <= 768;
         this.init();
     }
 
     init() {
-        if (!this.items || this.items.length === 0) return;
+        if (!this.carousel) return;
 
-        // Hide all but first item on mobile
-        if (window.innerWidth <= 768) {
-            this.items.forEach((item, index) => {
-                item.style.display = index === 0 ? 'block' : 'none';
-            });
+        // Add touch swipe functionality for mobile
+        if (this.isMobile) {
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            this.carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+
+            this.carousel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                this.handleSwipe(touchStartX, touchEndX);
+            }, false);
         }
 
+        // Handle resize
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                this.items.forEach(item => item.style.display = 'block');
-            }
+            this.isMobile = window.innerWidth <= 768;
         });
+    }
+
+    handleSwipe(startX, endX) {
+        const diff = startX - endX;
+        const threshold = 50;
+
+        if (Math.abs(diff) > threshold) {
+            if (diff > 0) {
+                // Swipe left - scroll right
+                this.carousel.scrollBy({
+                    left: 300,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Swipe right - scroll left
+                this.carousel.scrollBy({
+                    left: -300,
+                    behavior: 'smooth'
+                });
+            }
+        }
     }
 }
 
-// Initialize carousels
-new SimpleCarousel('.testimonial-carousel');
-new SimpleCarousel('.wisdom-carousel');
+// Initialize carousels with slider
+new CarouselSlider('.testimonial-carousel');
+new CarouselSlider('.wisdom-carousel');
+
+// ===========================
+// VIDEO TESTIMONIAL SLIDER
+// ===========================
+class VideoSlider {
+    constructor(carouselSelector, prevBtnSelector, nextBtnSelector, dotsContainerSelector) {
+        this.carousel = document.querySelector(carouselSelector);
+        this.prevBtn = document.querySelector(prevBtnSelector);
+        this.nextBtn = document.querySelector(nextBtnSelector);
+        this.dotsContainer = document.querySelector(dotsContainerSelector);
+        this.currentIndex = 0;
+        
+        console.log("[v0] VideoSlider initializing...");
+        console.log("[v0] Carousel found:", !!this.carousel);
+        console.log("[v0] Prev button found:", !!this.prevBtn);
+        console.log("[v0] Next button found:", !!this.nextBtn);
+        console.log("[v0] Dots container found:", !!this.dotsContainer);
+        
+        if (!this.carousel) {
+            console.log("[v0] Carousel not found!");
+            return;
+        }
+        
+        this.items = this.carousel.querySelectorAll('.testimonial-item');
+        this.itemCount = this.items.length;
+        console.log("[v0] Found", this.itemCount, "testimonial items");
+        this.init();
+    }
+
+    init() {
+        // Create dots
+        this.createDots();
+        console.log("[v0] Dots created:", this.dots?.length);
+        
+        // Add event listeners
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => {
+                console.log("[v0] Previous button clicked");
+                this.previousSlide();
+            });
+        }
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => {
+                console.log("[v0] Next button clicked");
+                this.nextSlide();
+            });
+        }
+        
+        // Update active dot on scroll
+        this.carousel.addEventListener('scroll', () => this.updateActiveDot());
+        
+        // Set initial active dot
+        this.updateActiveDot();
+        console.log("[v0] VideoSlider initialized successfully");
+    }
+
+    createDots() {
+        if (!this.dotsContainer) return;
+        
+        this.dotsContainer.innerHTML = '';
+        for (let i = 0; i < this.itemCount; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => this.goToSlide(i));
+            this.dotsContainer.appendChild(dot);
+        }
+        this.dots = this.dotsContainer.querySelectorAll('.dot');
+    }
+
+    nextSlide() {
+        const itemWidth = this.items[0].offsetWidth + 32; // width + gap
+        this.carousel.scrollBy({
+            left: itemWidth,
+            behavior: 'smooth'
+        });
+    }
+
+    previousSlide() {
+        const itemWidth = this.items[0].offsetWidth + 32; // width + gap
+        this.carousel.scrollBy({
+            left: -itemWidth,
+            behavior: 'smooth'
+        });
+    }
+
+    goToSlide(index) {
+        if (index < 0 || index >= this.itemCount) return;
+        const itemWidth = this.items[0].offsetWidth + 32; // width + gap
+        this.carousel.scrollLeft = index * itemWidth;
+    }
+
+    updateActiveDot() {
+        const itemWidth = this.items[0].offsetWidth + 32;
+        const scrollLeft = this.carousel.scrollLeft;
+        this.currentIndex = Math.round(scrollLeft / itemWidth);
+        
+        if (this.currentIndex >= this.itemCount) {
+            this.currentIndex = this.itemCount - 1;
+        }
+        
+        if (this.dots) {
+            this.dots.forEach(dot => dot.classList.remove('active'));
+            if (this.dots[this.currentIndex]) {
+                this.dots[this.currentIndex].classList.add('active');
+            }
+        }
+    }
+}
+
+// Initialize video slider
+new VideoSlider('#testimonialCarousel', '#prevBtn', '#nextBtn', '#sliderDots');
 
 // ===========================
 // ANIMATION ON SCROLL
