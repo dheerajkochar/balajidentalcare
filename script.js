@@ -267,8 +267,103 @@ class VideoSlider {
     }
 }
 
-// Initialize video slider
+// Initialize video sliders
 new VideoSlider('#testimonialCarousel', '#prevBtn', '#nextBtn', '#sliderDots');
+new VideoSlider('#wisdomCarousel', '#prevWisdomBtn', '#nextWisdomBtn', '#wisdomSliderDots');
+
+// ===========================
+// IMAGE TESTIMONIALS SLIDER
+// ===========================
+class ImageSlider {
+    constructor(carouselSelector, prevBtnSelector, nextBtnSelector, dotsContainerSelector) {
+        this.carousel = document.querySelector(carouselSelector);
+        this.prevBtn = document.querySelector(prevBtnSelector);
+        this.nextBtn = document.querySelector(nextBtnSelector);
+        this.dotsContainer = document.querySelector(dotsContainerSelector);
+        this.currentIndex = 0;
+        
+        if (!this.carousel) return;
+        
+        this.items = this.carousel.querySelectorAll('.image-testimonial-item');
+        this.itemCount = this.items.length;
+        this.init();
+    }
+
+    init() {
+        // Create dots
+        this.createDots();
+        
+        // Add event listeners
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => this.previousSlide());
+        }
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => this.nextSlide());
+        }
+        
+        // Update active dot on scroll
+        this.carousel.addEventListener('scroll', () => this.updateActiveDot());
+        
+        // Set initial active dot
+        this.updateActiveDot();
+    }
+
+    createDots() {
+        if (!this.dotsContainer) return;
+        
+        this.dotsContainer.innerHTML = '';
+        for (let i = 0; i < this.itemCount; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => this.goToSlide(i));
+            this.dotsContainer.appendChild(dot);
+        }
+        this.dots = this.dotsContainer.querySelectorAll('.dot');
+    }
+
+    nextSlide() {
+        const itemWidth = this.items[0].offsetWidth + 32; // width + gap
+        this.carousel.scrollBy({
+            left: itemWidth,
+            behavior: 'smooth'
+        });
+    }
+
+    previousSlide() {
+        const itemWidth = this.items[0].offsetWidth + 32; // width + gap
+        this.carousel.scrollBy({
+            left: -itemWidth,
+            behavior: 'smooth'
+        });
+    }
+
+    goToSlide(index) {
+        if (index < 0 || index >= this.itemCount) return;
+        const itemWidth = this.items[0].offsetWidth + 32; // width + gap
+        this.carousel.scrollLeft = index * itemWidth;
+    }
+
+    updateActiveDot() {
+        const itemWidth = this.items[0].offsetWidth + 32;
+        const scrollLeft = this.carousel.scrollLeft;
+        this.currentIndex = Math.round(scrollLeft / itemWidth);
+        
+        if (this.currentIndex >= this.itemCount) {
+            this.currentIndex = this.itemCount - 1;
+        }
+        
+        if (this.dots) {
+            this.dots.forEach(dot => dot.classList.remove('active'));
+            if (this.dots[this.currentIndex]) {
+                this.dots[this.currentIndex].classList.add('active');
+            }
+        }
+    }
+}
+
+// Initialize image slider
+new ImageSlider('#imageTestimonialCarousel', '#prevImageBtn', '#nextImageBtn', '#imageSliderDots');
 
 // ===========================
 // ANIMATION ON SCROLL
@@ -384,6 +479,26 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// ===========================
+// FAQs ACCORDION
+// ===========================
+const faqItems = document.querySelectorAll('.faq-item');
+
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        // Close other open FAQs
+        faqItems.forEach(otherItem => {
+            if (otherItem !== item && otherItem.classList.contains('active')) {
+                otherItem.classList.remove('active');
+            }
+        });
+        
+        // Toggle current FAQ
+        item.classList.toggle('active');
+    });
+});
 
 // ===========================
 // INITIALIZATION
