@@ -501,6 +501,62 @@ faqItems.forEach(item => {
 });
 
 // ===========================
+// AUTO-PLAY HERO CAROUSEL
+// ===========================
+
+// ===========================
+// AUTO-PLAY GALLERY CAROUSEL (RIGHT TO LEFT)
+// ===========================
+class AutoPlayGallery {
+    constructor(carouselSelector, interval = 4000, direction = 'right') {
+        this.carousel = document.querySelector(carouselSelector);
+        this.interval = interval;
+        this.direction = direction;
+        
+        if (!this.carousel) return;
+        
+        this.init();
+    }
+
+    init() {
+        this.startAutoPlay();
+    }
+
+    startAutoPlay() {
+        setInterval(() => {
+            const itemWidth = this.carousel.querySelector('.gallery-item')?.offsetWidth + 32;
+            
+            if (itemWidth) {
+                if (this.direction === 'left') {
+                    this.carousel.scrollBy({
+                        left: itemWidth,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    this.carousel.scrollBy({
+                        left: -itemWidth,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }, this.interval);
+    }
+}
+
+// Initialize gallery carousel (right to left)
+new AutoPlayGallery('.gallery-grid', 4000, 'right');
+
+// Note: Inlay carousel and Patient images carousel use smooth CSS animations for continuous scrolling
+
+// ===========================
 // INITIALIZATION
 // ===========================
 console.log('[Balaji Dental Clinic] Website loaded successfully');
+const slides = document.querySelectorAll('.hero-slide');
+let currentSlide = 0;
+
+setInterval(() => {
+  slides[currentSlide].classList.remove('active');
+  currentSlide = (currentSlide + 1) % slides.length;
+  slides[currentSlide].classList.add('active');
+}, 5000);
