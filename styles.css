@@ -1908,17 +1908,6 @@ html, body {
         height: 300px;
     }
 
-    .whatsapp-button {
-        bottom: 1.5rem;
-        right: 1.5rem;
-        width: 50px;
-        height: 50px;
-    }
-
-    .whatsapp-button svg {
-        width: 20px;
-        height: 20px;
-    }
 
     /* Blog Responsive */
     .detail-header {
@@ -1979,5 +1968,19 @@ html, body {
 
     .patient-treatment {
         font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .whatsapp-button {
+        bottom: 1rem;
+        right: 1rem;      /* Moves it closer to the edge for more space */
+        padding: 8px 15px; /* Smaller padding to fit the screen */
+        font-size: 14px;   /* Smaller text for mobile */
+        gap: 8px;
+    }
+
+    .whatsapp-button i {
+        font-size: 20px;   /* Smaller icon for mobile */
     }
 }
