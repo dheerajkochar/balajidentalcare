@@ -561,3 +561,12 @@ setInterval(() => {
   slides[currentSlide].classList.add('active');
 }, 5000);
 
+// preloader
+window.addEventListener("load", function() {
+  const loader = document.getElementById("preloader");
+  
+  // Add a slight delay (optional) so the user actually sees the logo
+  setTimeout(() => {
+    loader.classList.add("loader-hidden");
+  }, 1000); 
+});
